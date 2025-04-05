@@ -125,3 +125,76 @@ textarea {
 .work-entry:last-child {
     border-bottom: none;
 }
+
+/* Mastery Meter Styles */
+.mastery-container {
+    max-width: 1200px;
+    margin: 30px auto 0;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mastery-container h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.mastery-meter-container {
+    height: 30px;
+    background-color: #e0e0e0;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.mastery-meter-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #28a745, #5cb85c);
+    border-radius: 15px;
+    transition: width 0.5s ease-in-out;
+}
+
+.mastery-details {
+    text-align: right;
+    color: #555;
+    font-size: 16px;
+}
+
+#total-hours,
+#mastery-percentage {
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Mastery Projection Styling */
+.mastery-projection {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+#mastery-time-projection {
+    font-size: 24px;
+    color: #333;
+    font-weight: bold;
+}
+
+#mastery-time-projection span {
+    color: #007bff;
+    font-weight: bold;
+}
+
+#work-rate-metrics {
+    font-size: 16px;
+    color: #666;
+    margin-top: 10px;
+}
+
+#work-rate-metrics span {
+    color: #007bff;
+    font-weight: bold;
+}

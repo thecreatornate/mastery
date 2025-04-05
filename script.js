@@ -6,6 +6,105 @@ document.addEventListener('DOMContentLoaded', () => {
     const decreaseTimeButton = document.getElementById('decrease-time');
     const increaseTimeButton = document.getElementById('increase-time');
     const workHistory = document.getElementById('work-history');
+    const masteryMeterBar = document.getElementById('mastery-meter-bar');
+    const totalHoursElement = document.getElementById('total-hours');
+    const masteryPercentageElement = document.getElementById('mastery-percentage');
+    const masteryTimeProjection = document.getElementById('mastery-time-projection');
+    const hoursPerMonthElement = document.getElementById('hours-per-month');
+    const hoursPerWeekElement = document.getElementById('hours-per-week');
+    const hoursPerDayElement = document.getElementById('hours-per-day');
+
+    // Track total hours and entries
+    let totalHours = 0;
+    const targetHours = 10000;
+    let workEntries = []; // Array to store date and hours of each entry
+
+    // Function to update the mastery meter
+    function updateMasteryMeter() {
+        const percentage = Math.min((totalHours / targetHours) * 100, 100);
+        masteryMeterBar.style.width = `${percentage}%`;
+        totalHoursElement.textContent = totalHours.toFixed(2);
+        masteryPercentageElement.textContent = percentage.toFixed(1);
+    }
+
+    // Function to calculate time to mastery based on 30-day average
+    function calculateTimeToMastery() {
+        // If no entries, return default message
+        if (workEntries.length === 0) {
+            return {
+                projectionText: "<span>not enough data</span>",
+                hoursPerMonth: 0,
+                hoursPerWeek: 0,
+                hoursPerDay: 0
+            };
+        }
+
+        const currentDate = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        // Filter entries from the last 30 days
+        const recentEntries = workEntries.filter(entry => {
+            return entry.date >= thirtyDaysAgo && entry.date <= currentDate;
+        });
+
+        // If no recent entries, return default message
+        if (recentEntries.length === 0) {
+            return {
+                projectionText: "<span>not enough recent data</span>",
+                hoursPerMonth: 0,
+                hoursPerWeek: 0,
+                hoursPerDay: 0
+            };
+        }
+
+        // Calculate total hours in the last 30 days
+        const recentHours = recentEntries.reduce((total, entry) => total + entry.hours, 0);
+
+        // Calculate averages
+        const hoursPerMonth = recentHours;
+        const hoursPerWeek = recentHours / (30 / 7);
+        const hoursPerDay = recentHours / 30;
+
+        // Calculate daily average
+        const dailyAverage = recentHours / 30;
+
+        // Calculate hours remaining
+        const hoursRemaining = Math.max(targetHours - totalHours, 0);
+
+        // Calculate days to mastery
+        const daysToMastery = dailyAverage > 0 ? hoursRemaining / dailyAverage : Infinity;
+
+        // Convert to years with 1 decimal place
+        const yearsToMastery = daysToMastery / 365;
+
+        let projectionText;
+        if (yearsToMastery === Infinity || isNaN(yearsToMastery)) {
+            projectionText = "<span>not enough progress yet</span>";
+        } else if (yearsToMastery <= 0) {
+            projectionText = "<span>achieved!</span>";
+        } else {
+            projectionText = `<span>${yearsToMastery.toFixed(1)} years</span>`;
+        }
+
+        return {
+            projectionText,
+            hoursPerMonth,
+            hoursPerWeek,
+            hoursPerDay
+        };
+    }
+
+    // Function to update mastery projection
+    function updateMasteryProjection() {
+        const results = calculateTimeToMastery();
+        masteryTimeProjection.innerHTML = `At your current rate, you will achieve mastery in ${results.projectionText}`;
+
+        // Update work rate metrics
+        hoursPerMonthElement.textContent = results.hoursPerMonth.toFixed(1);
+        hoursPerWeekElement.textContent = results.hoursPerWeek.toFixed(1);
+        hoursPerDayElement.textContent = results.hoursPerDay.toFixed(1);
+    }
 
     // Set default date to today
     const today = new Date().toISOString().split('T')[0];
@@ -27,13 +126,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Log work functionality
     logWorkButton.addEventListener('click', () => {
         const date = dateInput.value;
-        const time = timeInput.value;
+        const time = parseFloat(timeInput.value);
         const description = descriptionInput.value.trim();
 
-        if (!date || !time || !description) {
+        if (!date || isNaN(time) || time <= 0 || !description) {
             alert('Please fill in all fields');
             return;
         }
+
+        // Update total hours
+        totalHours += time;
+
+        // Add entry to workEntries array with date and hours
+        workEntries.push({
+            date: new Date(date),
+            hours: time
+        });
+
+        // Update displays
+        updateMasteryMeter();
+        updateMasteryProjection();
 
         // Create new work entry
         const workEntry = document.createElement('div');
@@ -59,4 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
         descriptionInput.value = '';
         timeInput.value = '0';
     });
+
+    // Initialize displays
+    updateMasteryMeter();
+    updateMasteryProjection();
 }); 
