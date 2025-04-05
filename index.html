@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastery App - Work Log</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1 class="app-title">Mastery App</h1>
+    <div class="container">
+        <div class="work-log-card">
+            <h2>Log Work</h2>
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+                <label for="time">Time Worked:</label>
+                <div class="time-control">
+                    <button id="decrease-time">-</button>
+                    <input type="number" id="time" value="0" min="0" step="0.25">
+                    <button id="increase-time">+</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" rows="3" required></textarea>
+            </div>
+            <button id="log-work">Log Work</button>
+        </div>
+
+        <div class="work-history-card">
+            <h2>Work History</h2>
+            <div class="history-header">
+                <div>Date</div>
+                <div>Time (hours)</div>
+                <div>Description</div>
+            </div>
+            <div id="work-history">
+                <!-- Work history entries will be added here -->
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
