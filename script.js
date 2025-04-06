@@ -1090,12 +1090,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create day cells for each day of the year
         const hoursPerDay = {};
 
-        // Calculate hours per day
+        // Calculate hours per day - Make sure we check all entries, regardless of date
         workEntries.forEach(entry => {
-            if (entry.date >= startDate && entry.date <= endDate) {
-                const dateKey = entry.date.toISOString().split('T')[0];
-                hoursPerDay[dateKey] = (hoursPerDay[dateKey] || 0) + entry.hours;
-            }
+            const dateKey = entry.date.toISOString().split('T')[0];
+            hoursPerDay[dateKey] = (hoursPerDay[dateKey] || 0) + entry.hours;
         });
 
         // Create grid
@@ -1113,18 +1111,18 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.dataset.date = dateKey;
             cell.dataset.hours = hours;
 
-            // Set intensity based on hours (0-5)
+            // Set intensity based on hours (0-5) - Adjust thresholds to be more sensitive
             let intensity = 0;
-            if (hours > 0 && hours < 1) intensity = 1;
-            else if (hours >= 1 && hours < 2) intensity = 2;
-            else if (hours >= 2 && hours < 4) intensity = 3;
-            else if (hours >= 4 && hours < 6) intensity = 4;
-            else if (hours >= 6) intensity = 5;
+            if (hours > 0 && hours < 0.5) intensity = 1;
+            else if (hours >= 0.5 && hours < 1) intensity = 2;
+            else if (hours >= 1 && hours < 2) intensity = 3;
+            else if (hours >= 2 && hours < 4) intensity = 4;
+            else if (hours >= 4) intensity = 5;
 
             cell.classList.add(`heatmap-level-${intensity}`);
 
             // Add tooltip
-            cell.title = `${dateKey}: ${hours.toFixed(1)} hours`;
+            cell.title = `${dateKey}: ${hours.toFixed(2)} hours`;
 
             gridContainer.appendChild(cell);
 
@@ -1135,8 +1133,15 @@ document.addEventListener('DOMContentLoaded', () => {
         heatmapGrid.appendChild(gridContainer);
         heatmapContainer.appendChild(heatmapGrid);
 
-        // Add CSS for heatmap that wasn't included in the main CSS file
+        // Remove any existing heatmap styles before adding new ones
+        const existingStyle = document.getElementById('heatmap-style');
+        if (existingStyle) {
+            existingStyle.remove();
+        }
+
+        // Add CSS for heatmap with more visible colors
         const heatmapStyle = document.createElement('style');
+        heatmapStyle.id = 'heatmap-style';
         heatmapStyle.textContent = `
             .heatmap-grid {
                 display: flex;
@@ -1183,21 +1188,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 border-radius: 2px;
             }
             
+            /* Light theme colors - more saturated */
             .heatmap-level-0 { background-color: var(--bg-tertiary); }
-            .heatmap-level-1 { background-color: #AED6B8; }
-            .heatmap-level-2 { background-color: #8DC19A; }
-            .heatmap-level-3 { background-color: #5FAC7D; }
-            .heatmap-level-4 { background-color: #3C9A5F; }
-            .heatmap-level-5 { background-color: #2E8B57; }
+            .heatmap-level-1 { background-color: #9be9a8; }
+            .heatmap-level-2 { background-color: #40c463; }
+            .heatmap-level-3 { background-color: #30a14e; }
+            .heatmap-level-4 { background-color: #216e39; }
+            .heatmap-level-5 { background-color: #00441b; }
             
-            [data-theme="dark"] .heatmap-level-1 { background-color: #0E4429; }
-            [data-theme="dark"] .heatmap-level-2 { background-color: #006D32; }
-            [data-theme="dark"] .heatmap-level-3 { background-color: #26A641; }
-            [data-theme="dark"] .heatmap-level-4 { background-color: #39D353; }
-            [data-theme="dark"] .heatmap-level-5 { background-color: #4AE168; }
+            /* Dark theme colors - brighter */
+            [data-theme="dark"] .heatmap-level-0 { background-color: var(--bg-tertiary); }
+            [data-theme="dark"] .heatmap-level-1 { background-color: #0e4429; }
+            [data-theme="dark"] .heatmap-level-2 { background-color: #006d32; }
+            [data-theme="dark"] .heatmap-level-3 { background-color: #26a641; }
+            [data-theme="dark"] .heatmap-level-4 { background-color: #39d353; }
+            [data-theme="dark"] .heatmap-level-5 { background-color: #4ae168; }
         `;
 
         document.head.appendChild(heatmapStyle);
+
+        // Debug log to check if data is being displayed
+        console.log('Hours per day:', hoursPerDay);
+        console.log('Work entries for heatmap:', workEntries);
     }
 
     function updateInsights() {
